@@ -1,0 +1,5 @@
+# Sharing inputs is disallowed by AoC Terms of Service
+/inputs
+
+.DS_Store
+__pycache__/
