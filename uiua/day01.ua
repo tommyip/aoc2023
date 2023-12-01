@@ -1,9 +1,7 @@
 L ← ⊜□≠@\n. &fras "inputs/day01.txt"
+F! ← /+∵(+×10∩⊢⊃∘⇌^1)L
 
-# part 1
-/+∵(+×10⊃⊢(⊢⇌)-@0▽≤@9.⊔)L
+F!(-@0▽≤@9.⊔) # part 1
 
-# part 2
-D ← ⊂⊜□≠@ ."one two three four five six seven eight nine"∵□+@1⇡9
-F ← ⊢▽≠0./+×⊂.+1⇡9≡(⌕⊓⊔(⬚@ ↙50⊔))
-/+∵(+×10⊃(F D)(F∵⇌D⇌))L
+D ← ⊂⊜□≠@ ."zero one two three four five six seven eight nine"+@0□⇡10
+F!(▽≠0./+×⊂.⇡10≡(⊐⌕)D) # part 2
