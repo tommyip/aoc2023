@@ -19,7 +19,6 @@ for i, line in enumerate(lines):
         fewest[colour] = max(fewest[colour], n)
 
     if not exceeded:
-        print(i+1, end=' ')
         part1 += i + 1
     part2 += fewest['red'] * fewest['green'] * fewest['blue']
 

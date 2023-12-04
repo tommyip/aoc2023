@@ -13,7 +13,6 @@ for i, line in enumerate(lines):
     match = len(intersect)
     for j in range(match):
         copies[i + j + 1] += copies[i]
-    # print(i, copies)
     if match > 0:
         part1 += 2 ** (match - 1)
 

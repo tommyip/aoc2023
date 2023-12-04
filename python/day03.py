@@ -27,7 +27,6 @@ for j, line in enumerate(lines):
         if re.search(r'[^\d.]', neighbors):
             part1 += num
 
-print(nums)
 for j, line in enumerate(lines):
     for m in re.finditer(r'\*', line):
         i = m.start()
@@ -38,7 +37,6 @@ for j, line in enumerate(lines):
                 stars.append(nums[(j_, i_)])
         if len(stars) == 2:
             part2 += stars[0] * stars[1]
-
 
 print(part1)
 print(part2)
