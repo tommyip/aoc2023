@@ -69,3 +69,48 @@ multipliers = [int(multiplier)
 #       for (_, multiplier), order in zip(lines, orders)))
 print(sum((len(multipliers) - i) * multiplier for i,
       multiplier in enumerate(multipliers)))
+
+
+part1 = 0
+strengthj = 'J23456789TQKA'
+cards = []
+for hand, multiplier in lines:
+    j_count = sum(h == 'J' for h in hand)
+    hand_strength = sorted([strength.index(h) for h in hand if h != 'J'], reverse=True)
+    m = Counter(hand_strength).most_common()[0][0] if len(hand_strength) > 0 else len(strength)-1
+    hand_strength = ([m]*j_count)+hand_strength
+    # print(hand_strength)
+    strength_idx = Counter(hand_strength).most_common()
+    # print(strength_idx)
+    rank = []
+    for i in range(5):
+        kind = 5 - i
+        rank.append(len(tuple(s for (s, c) in strength_idx if c == kind)))
+    rank = tuple(rank)
+    r = None
+    if rank[0] == 1:
+        r = 6
+    elif rank[1] == 1:
+        r = 5
+    elif rank[2] == 1 and rank[3] == 1:
+        r = 4
+    elif rank[2] == 1:
+        r = 3
+    elif rank[3] == 2:
+        r = 2
+    elif rank[3] == 1:
+        r = 1
+    else:
+        r = 0
+    cards.append((r, *[strengthj.index(h) for h in hand]))
+
+print(cards)
+multipliers = [card
+               for card, (_, multiplier) in sorted(zip(cards, lines), reverse=True, key=lambda x: x[0])]
+print(multipliers)
+multipliers = [int(multiplier)
+               for card, (_, multiplier) in sorted(zip(cards, lines), reverse=True, key=lambda x: x[0])]
+# print(sum(int(multiplier) * order
+#       for (_, multiplier), order in zip(lines, orders)))
+print(sum((len(multipliers) - i) * multiplier for i,
+      multiplier in enumerate(multipliers)))
