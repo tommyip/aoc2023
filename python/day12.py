@@ -4,7 +4,8 @@ from functools import lru_cache
 with open('inputs/day12.txt') as f:
     lines = f.read().splitlines()
 
-def solve(records, r_i, groups, g_i):
+
+def solve(records, groups):
     @lru_cache
     def aux(r_i, g_i):
         # Base cases
@@ -35,14 +36,15 @@ def solve(records, r_i, groups, g_i):
         if records[r_i] == '?':
             arrangements += aux(r_i + 1, g_i)
         return arrangements
-    return aux(r_i, g_i)
+    return aux(0, 0)
+
 
 part1 = 0
 part2 = 0
 for line in lines:
     records, groups = line.split(' ')
     groups = [int(x) for x in groups.split(',')]
-    part1 += solve(records, 0, groups, 0)
-    part2 += solve('?'.join(repeat(records, 5)), 0, groups * 5, 0)
+    part1 += solve(records, groups)
+    part2 += solve('?'.join(repeat(records, 5)), groups * 5)
 
 print(part1, part2)
