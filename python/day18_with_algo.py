@@ -8,10 +8,9 @@ def solve(parser):
     boundary = 0
     for line in lines:
         dir, length = parser(*line.split())
-        boundary += int(length)
-        pos_ = pos + dir * length
+        boundary += length
+        pos, pos_ = pos + dir * length, pos
         area += pos.real * pos_.imag - pos_.real * pos.imag
-        pos = pos_
     return abs(int(area) // 2) + (boundary // 2) + 1
 
 
