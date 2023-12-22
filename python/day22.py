@@ -5,29 +5,28 @@ with open('inputs/day22.txt') as f:
     lines = f.read().splitlines()
 
 
-bricks = defaultdict(list)
-for brick_id, line in enumerate(lines):
-    c0, c1 = [tuple(int(x) for x in chunk.split(','))
-              for chunk in line.split('~')]
-    d = c1[0]-c0[0], c1[1]-c0[1], c1[2]-c0[2]
-    for i in range(max(d) + 1):
-        bricks[brick_id].append(c0)
-        c0 = tuple(u+(du//(du or 1)) for u, du in zip(c0, d))
-
-
+bricks = []
 cubes = {}
+for brick_id, line in enumerate(lines):
+    c, c1 = [tuple(int(x) for x in chunk.split(','))
+             for chunk in line.split('~')]
+    dx, dy, dz = c1[0] - c[0], c1[1] - c[1], c1[2] - c[2]
+    brick_cubes = []
+    for i in range(max(dx, dy, dz) + 1):
+        brick_cubes.append(c)
+        cubes[c] = brick_id
+        c = (c[0] + dx // (dx or 1),
+             c[1] + dy // (dy or 1),
+             c[2] + dz // (dz or 1))
+    min_z = min(c[2] for c in brick_cubes)
+    bricks.append((min_z, brick_id, brick_cubes))
+
 # Run gravity simulation by z-order to ensure a brick does not settle on a
 # mid-air brick.
-fall_order = []
-for brick_id, cube_list in bricks.items():
-    for cube in cube_list:
-        cubes[cube] = brick_id
-    fall_order.append((min(c[2] for c in cube_list), brick_id))
-fall_order.sort()
+bricks.sort(key=lambda args: args[0])
 
-for min_z, brick_id in fall_order:
+for min_z, brick_id, brick_cubes in bricks:
     settled = False
-    brick_cubes = [c for c in bricks[brick_id]]
     for cube in brick_cubes:
         del cubes[cube]
     while not settled:
@@ -42,7 +41,6 @@ for min_z, brick_id in fall_order:
             min_z -= 1
     for cube in brick_cubes:
         cubes[cube] = brick_id
-    bricks[brick_id] = brick_cubes
 
 supporting = defaultdict(set)
 supported_by = defaultdict(set)
@@ -57,7 +55,7 @@ for (x, y, z), brick_id in cubes.items():
 part1 = 0
 part2 = 0
 q = SimpleQueue()
-for brick_id in bricks:
+for _, brick_id, _ in bricks:
     # Find how many bricks (including self) would be disintegrated
     # if we disintegrate this brick.
     q.put(brick_id)
