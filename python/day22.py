@@ -4,19 +4,14 @@ with open('inputs/day22.txt') as f:
     lines = f.read().splitlines()
 
 
-def sign(x):
-    return 0 if x == 0 else x//x
-
-
 bricks = defaultdict(list)
 for brick_id, line in enumerate(lines):
     c0, c1 = [tuple(int(x) for x in chunk.split(','))
               for chunk in line.split('~')]
-    dx, dy, dz = c1[0]-c0[0], c1[1]-c0[1], c1[2]-c0[2]
-
-    for i in range(max(dx, dy, dz) + 1):
+    d = c1[0]-c0[0], c1[1]-c0[1], c1[2]-c0[2]
+    for i in range(max(d) + 1):
         bricks[brick_id].append(c0)
-        c0 = c0[0]+sign(dx), c0[1]+sign(dy), c0[2]+sign(dz)
+        c0 = tuple(u+(du//(du or 1)) for u, du in zip(c0, d))
 
 
 def fall(bricks):
