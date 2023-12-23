@@ -29,37 +29,37 @@ for j in range(h):
 
 
 def longest_path(G):
-    def aux(pos, visited, length):
+    def aux(pos, visited, path_length):
         if pos == dest:
-            return length
-        longest_hikes = 0
-        for npos, dist in G[pos].items():
-            if npos not in visited:
-                longest_hikes = max(longest_hikes, aux(
-                    npos, visited.union({pos}), length + dist))
+            return path_length
+        new_visited = visited.union({pos})
+        return max((aux(npos, new_visited, path_length + edge_length)
+                    for npos, edge_length in G[pos].items()
+                    if npos not in new_visited),
+                   default=0)
 
-        return longest_hikes
     return aux(source, set(), 0)
 
 
 def prune_useless_edges(G):
     g = defaultdict(lambda: defaultdict(int))
     visited = set()
+    def is_hub(pos): return len(G[pos]) >= 3
 
-    def aux(pos, prev_pos, prev_vert, dist):
+    def aux(pos, prev_pos, prev_hub, dist):
         visited.add(pos)
-        is_vert = len(G[pos]) >= 3
-        if is_vert or pos == dest:
-            g[prev_vert][pos] = max(g[prev_vert][pos], dist)
-            g[pos][prev_vert] = max(g[pos][prev_vert], dist)
+        if is_hub(pos) or pos == dest:
+            g[prev_hub][pos] = max(g[prev_hub][pos], dist)
+            g[pos][prev_hub] = max(g[pos][prev_hub], dist)
             dist = 0
+            prev_hub = pos
         for npos in G[pos]:
             if npos != prev_pos:
                 if npos not in visited:
-                    aux(npos, pos, pos if is_vert else prev_vert, dist + 1)
-                elif len(G[npos]) >= 3:
-                    g[prev_vert][npos] = max(g[prev_vert][npos], dist + 1)
-                    g[npos][prev_vert] = max(g[npos][prev_vert], dist + 1)
+                    aux(npos, pos, prev_hub, dist + 1)
+                elif is_hub(npos):
+                    g[prev_hub][npos] = max(g[prev_hub][npos], dist + 1)
+                    g[npos][prev_hub] = max(g[npos][prev_hub], dist + 1)
 
     aux(source, None, source, 0)
     return g
