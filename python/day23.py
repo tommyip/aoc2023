@@ -12,7 +12,7 @@ source, dest = (1, 0), (w - 2, h - 1)
 slopes = '>v<^'
 
 
-# Create adjacency list for part 1 & 2
+# Create weighted adjacency list for part 1 & 2
 G1 = defaultdict(dict)
 G2 = defaultdict(dict)
 for j in range(h):
@@ -32,16 +32,16 @@ for j in range(h):
 def longest_path(G):
     last_hub = next(iter(G[dest]))
 
-    def aux(pos, visited, path_length):
+    def aux(pos, visited, length):
         if pos == dest:
-            return path_length
+            return length
         elif pos == last_hub:
             # Perf optimization: once we reached the last hub we must proceed
             # to the destination, otherwise we block ourselves when we
             # eventually cycle back. (-10 secs)
-            return path_length + G[last_hub][dest]
+            return length + G[last_hub][dest]
         new_visited = visited.union({pos})
-        return max((aux(npos, new_visited, path_length + edge_length)
+        return max((aux(npos, new_visited, length + edge_length)
                     for npos, edge_length in G[pos].items()
                     if npos not in new_visited),
                    default=0)
@@ -60,20 +60,19 @@ def prune_useless_edges(G):
     visited = set()
     def is_hub(pos): return len(G[pos]) >= 3
 
-    def aux(pos, prev_pos, prev_hub, dist):
+    def aux(pos, prev_pos, prev_hub, length):
         visited.add(pos)
         if is_hub(pos) or pos == dest:
-            g[prev_hub][pos] = max(g[prev_hub][pos], dist)
-            g[pos][prev_hub] = max(g[pos][prev_hub], dist)
-            dist = 0
+            g[prev_hub][pos] = g[pos][prev_hub] = max(g[prev_hub][pos], length)
+            length = 0
             prev_hub = pos
         for npos in G[pos]:
             if npos != prev_pos:
                 if npos not in visited:
-                    aux(npos, pos, prev_hub, dist + 1)
+                    aux(npos, pos, prev_hub, length + 1)
                 elif is_hub(npos):
-                    g[prev_hub][npos] = max(g[prev_hub][npos], dist + 1)
-                    g[npos][prev_hub] = max(g[npos][prev_hub], dist + 1)
+                    g[prev_hub][npos] = g[npos][prev_hub] = max(
+                        g[prev_hub][npos], length + 1)
 
     aux(source, None, source, 0)
     return g
