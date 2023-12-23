@@ -6,10 +6,9 @@ sys.setrecursionlimit(10000)
 with open('inputs/day23.txt') as f:
     m = f.read().splitlines()
 
+NEIGHBORS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 w, h = len(m[0]), len(m)
 source, dest = (1, 0), (w - 2, h - 1)
-
-NEIGHBORS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 slopes = '>v<^'
 
 
@@ -19,19 +18,28 @@ G2 = defaultdict(dict)
 for j in range(h):
     for i in range(w):
         tile = m[j][i]
-        if tile != '#':
-            for di, dj in NEIGHBORS:
-                ni, nj = i + di, j + dj
-                if 0 <= ni < w and 0 <= nj < h and m[nj][ni] != '#':
-                    if tile not in slopes or (di, dj) == NEIGHBORS[slopes.index(tile)]:
-                        G1[i, j][ni, nj] = 1
-                    G2[i, j][ni, nj] = 1
+        if tile == '#':
+            continue
+        for di, dj in NEIGHBORS:
+            ni, nj = i + di, j + dj
+            if 0 <= ni < w and 0 <= nj < h and m[nj][ni] != '#':
+                if (tile not in slopes or
+                        (di, dj) == NEIGHBORS[slopes.index(tile)]):
+                    G1[i, j][ni, nj] = 1
+                G2[i, j][ni, nj] = 1
 
 
 def longest_path(G):
+    last_hub = next(iter(G[dest]))
+
     def aux(pos, visited, path_length):
         if pos == dest:
             return path_length
+        elif pos == last_hub:
+            # Perf optimization: once we reached the last hub we must proceed
+            # to the destination, otherwise we block ourselves when we
+            # eventually cycle back. (-10 secs)
+            return path_length + G[last_hub][dest]
         new_visited = visited.union({pos})
         return max((aux(npos, new_visited, path_length + edge_length)
                     for npos, edge_length in G[pos].items()
@@ -42,6 +50,12 @@ def longest_path(G):
 
 
 def prune_useless_edges(G):
+    """
+    Let hubs be vertices with 3+ neighbors. All vertices between hubs are
+    useless for our longest path algorithm, so we create a new graph with
+    only hubs and set the edge weights as the number of edges between them
+    in the original graph.
+    """
     g = defaultdict(lambda: defaultdict(int))
     visited = set()
     def is_hub(pos): return len(G[pos]) >= 3
